@@ -1,6 +1,21 @@
-from django.http import HttpResponse
+from io import BytesIO
+
+from PIL import Image
+
 from django.shortcuts import render
 
 # Create your views here.
 def index(request):
-    return HttpResponse("Welcome to COMP7705 -> Multi-Platform Image Recommendation System!")
+    return render(request, "index.html", {})
+
+
+def recommend(request):
+    if request.method == 'POST':
+        img_file = request.FILES['image']
+        img = Image.open(img_file)
+        img_data = BytesIO()
+        img.save(img_data, format='JPEG')
+        img_data.seek(0)
+
+        return render(request, 'index.html', {'img_data': img_data})
+    return render(request, 'index.html')

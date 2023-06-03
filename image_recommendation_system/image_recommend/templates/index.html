@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+{% load base64_encode %}
+<style>
+    .uploaded-img {
+        width: 300px;
+        height: auto;
+    }
+</style>
+
+<html>
+    <head>
+        <meta charset="uft-8">
+        <title>Image Recommendation System</title>
+    </head>
+
+    <body>
+        <h1>Welcome to Image Recommendation System!</h1>
+        <br/>
+        <form action="{% url 'recommend' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="image" accept="image/*" required>
+            <button type="submit">upload</button>
+        </form>
+        <br/>
+        {% if img_data %}
+            <img src="data:image/jpeg;base64,{{ img_data|base64_encode }}" alt="uploaded image" class="uploaded-img">
+            <br/>
+        {% endif %}
+        <button>
+            <a>recommend similar images for me!</a>
+        </button>
+        <br/>
+        <button>
+            <a>transfer styles for me!</a>
+        </button>
+    </body>
+
+</html>
