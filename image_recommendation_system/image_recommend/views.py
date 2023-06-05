@@ -4,6 +4,7 @@ from PIL import Image
 
 from django.shortcuts import render
 
+
 # Create your views here.
 def index(request):
     return render(request, "index.html", {})
@@ -18,4 +19,12 @@ def recommend(request):
         img_data.seek(0)
 
         return render(request, 'index.html', {'img_data': img_data})
+    return render(request, 'index.html')
+
+
+def recommend_similar(request):
+    return render(request, 'index.html')
+
+
+def transfer_styles(request):
     return render(request, 'index.html')

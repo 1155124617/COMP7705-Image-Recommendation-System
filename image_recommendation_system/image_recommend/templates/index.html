@@ -1,38 +1,53 @@
 <!DOCTYPE html>
 {% load base64_encode %}
-<style>
-    .uploaded-img {
-        width: 300px;
-        height: auto;
-    }
-</style>
 
 <html>
-    <head>
-        <meta charset="uft-8">
-        <title>Image Recommendation System</title>
-    </head>
+<head>
+    <meta charset="uft-8">
+    <title>Image Recommendation System</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
 
-    <body>
-        <h1>Welcome to Image Recommendation System!</h1>
+        .uploaded-img {
+            width: 300px;
+            height: auto;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+
+        .button-container button {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Welcome to the Image Recommendation System!</h1>
+    <br/>
+    <form action="{% url 'recommend' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Upload</button>
+    </form>
+    <br/>
+    {% if img_data %}
+        <img src="data:image/jpeg;base64,{{ img_data|base64_encode }}" alt="Uploaded Image" class="uploaded-img">
         <br/>
-        <form action="{% url 'recommend' %}" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="file" name="image" accept="image/*" required>
-            <button type="submit">upload</button>
-        </form>
-        <br/>
-        {% if img_data %}
-            <img src="data:image/jpeg;base64,{{ img_data|base64_encode }}" alt="uploaded image" class="uploaded-img">
-            <br/>
-        {% endif %}
-        <button>
-            <a>recommend similar images for me!</a>
-        </button>
-        <br/>
-        <button>
-            <a>transfer styles for me!</a>
-        </button>
-    </body>
+        <div class="button-container">
+            <button><a href="{% url 'recommend_similar' %}">Recommend similar images for me!</a></button>
+            <button><a href="{% url 'transfer_styles' %}">Transfer styles for me!</a></button>
+        </div>
+    {% endif %}
+</body>
 
 </html>
