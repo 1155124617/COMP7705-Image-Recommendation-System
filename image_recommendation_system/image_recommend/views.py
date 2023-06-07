@@ -4,6 +4,9 @@ from PIL import Image
 
 from django.shortcuts import render
 
+from compute_models.model_interface import recommend_images
+
+img = None
 
 # Create your views here.
 def index(request):
@@ -23,6 +26,9 @@ def recommend(request):
 
 
 def recommend_similar(request):
+    if img is not None:
+        imgs = recommend_images(img)
+
     return render(request, 'index.html')
 
 
