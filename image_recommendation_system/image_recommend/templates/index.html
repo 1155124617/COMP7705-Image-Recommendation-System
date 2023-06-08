@@ -48,6 +48,10 @@
             <button><a href="{% url 'transfer_styles' %}">Transfer styles for me!</a></button>
         </div>
     {% endif %}
+
+    {% if img_output  %}
+    	<img src="data:image/jpeg;base64,{{ img_output|base64_encode }}" alt="Uploaded Image" class="uploaded-img">
+    {% endif %}
 </body>
 
 </html>
