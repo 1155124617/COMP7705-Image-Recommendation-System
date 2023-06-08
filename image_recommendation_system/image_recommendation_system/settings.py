@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'image_recommend',
+    'models.blip2',
 ]
 
 MIDDLEWARE = [
