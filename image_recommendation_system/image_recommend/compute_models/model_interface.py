@@ -1,23 +1,31 @@
 import torch
 import urllib.request
 import numpy as np
+import pandas as pd
+import pdb
 
 from PIL import Image 
 from lavis.models import load_model_and_preprocess
 
 
-def recommend_images(image):
+def recommend_images(image_path):
+    print('start reading csv file')
     df_sample = pd.read_csv('../data/20sampleimages.csv')
+    print('read samples completed')
     
-    raw_image = image.convert('RGB').resize((596,437))
+    raw_image = Image.open(image_path).convert('RGB').resize((596,437))
     
+    print('image resize completed')
+
     # setup device to use
     device = torch.device('cuda') if torch.cuda.is_available() else 'cpu'
 
     model, vis_processors, txt_processors = load_model_and_preprocess(name="blip2_feature_extractor", model_type="pretrain", is_eval=True, device=device)
-    image = vis_processors["eval"](raw_image).unsqueeze(0).to(device)
+    print('model loading completed')
     
+    image = vis_processors["eval"](raw_image).unsqueeze(0).to(device)
     features_query_image = model.extract_features({'image':image}, mode='image')
+    print('query image features extraction completed')
 
     image_list = list(df_sample['photo_image_url'])
     sample_list = []
@@ -39,3 +47,8 @@ def recommend_images(image):
     rank_image = np.argsort(-score)[0:6]
 
     return df_sample[rank_image]
+
+
+if __name__ == '__main__':
+    a = recommend_images('../temp/image.jpeg')
+    pdb.set_trace()
