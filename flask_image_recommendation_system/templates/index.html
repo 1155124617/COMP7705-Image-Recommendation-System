@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="uft-8">
+    <title>Image Recommendation System</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+
+<body>
+    <h1>Welcome to the Image Recommendation System!</h1>
+    <br/>
+    <form action="/recommend" method="POST" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Upload</button>
+    </form>
+    <br/>
+    {% if img_data %}
+        <img src="data:image/jpeg;base64,{{ img_data|base64_encode }}" alt="Uploaded Image" class="uploaded-img">
+        <br/>
+        <div class="button-container">
+            <button><a href="/recommend_similar">Recommend similar images for me!</a></button>
+            <button><a href="/transfer_styles">Transfer styles for me!</a></button>
+        </div>
+    {% endif %}
+
+    {% if img_output  %}
+        <img src="data:image/jpeg;base64,{{ img_output|base64_encode }}" alt="Uploaded Image" class="uploaded-img">
+    {% endif %}
+</body>
+
+</html>
