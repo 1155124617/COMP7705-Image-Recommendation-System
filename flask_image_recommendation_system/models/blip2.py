@@ -53,8 +53,12 @@ def recommend_images(image):
         score_list.append(similarity)
 
     score = np.array(score_list)
-    rank_image = np.argsort(-score)[0]
+    rank_image = np.argsort(-score)[0:6]
 
-    url = df_sample.loc[rank_image]['photo_image_url']
-    urllib.request.urlretrieve(url, "temp/output_image.jpeg")
-    return "temp/output_image.jpeg"
+    count = 1
+    return_value_list = []
+    for url in df_sample.loc[rank_image]['photo_image_url']:
+        urllib.request.urlretrieve(url, f"temp/output_image_{count}.jpeg")
+        return_value_list.append(f"temp/output_image_{count}.jpeg")
+        count += 1
+    return return_value_list

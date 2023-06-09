@@ -23,8 +23,14 @@
         </div>
     {% endif %}
 
-    {% if img_output  %}
-        <img src="data:image/jpeg;base64,{{ img_output|base64_encode }}" alt="Uploaded Image" class="uploaded-img">
+    {% if images_output_list %}
+        <div class="image-grid">
+        <ul>
+            {% for img_output in images_output_list %}
+                <img src="data:image/jpeg;base64,{{ img_output|base64_encode }}" alt="Uploaded Image" class="uploaded-img">
+            {% endfor  %}
+        </ul>
+        <div/>
     {% endif %}
 </body>
 
