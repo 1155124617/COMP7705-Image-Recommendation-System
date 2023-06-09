@@ -39,11 +39,12 @@ def recommend_similar():
     img = Image.open(image_path)
 
     if img is not None:
-        imgs = recommend_images(img)
+        image_path = recommend_images(img)
+        img = Image.open(image_path)
 
         # Naive test
         img_output = BytesIO()
-        imgs.save(img_output, format='jpeg')
+        img.save(img_output, format='jpeg')
         img_output.seek(0)
 
         return render_template('index.html', img_output=img_output)

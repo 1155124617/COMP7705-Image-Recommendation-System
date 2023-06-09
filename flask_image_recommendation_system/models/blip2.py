@@ -15,15 +15,15 @@ model, vis_processors, txt_processors = load_model_and_preprocess(name="blip2_fe
 print('model loading completed')
 
 print('start reading csv file')
-df_sample = pd.read_csv('../data/20sampleimages.csv')[:2]
+df_sample = pd.read_csv('data/20sampleimages.csv')[:2]
 print('read samples completed')
 
 image_list = list(df_sample['photo_image_url'])
 sample_list = []
 print(f'start downloading samples, sample size : {len(image_list)}')
 for image_url in image_list:
-    urllib.request.urlretrieve(image_url, "gfg.png")
-    raw_image = Image.open("gfg.png").convert("RGB").resize((596, 437))
+    urllib.request.urlretrieve(image_url, "temp/gfg.png")
+    raw_image = Image.open("temp/gfg.png").convert("RGB").resize((596, 437))
     print('image downloaded')
     image = vis_processors["eval"](raw_image).unsqueeze(0).to(device)
     print('image preprocessed')
@@ -55,4 +55,6 @@ def recommend_images(image):
     score = np.array(score_list)
     rank_image = np.argsort(-score)[0]
 
-    return df_sample[rank_image]
+    url = df_sample.loc[rank_image]['photo_image_url']
+    urllib.request.urlretrieve(url, "temp/output_image.jpeg")
+    return "temp/output_image.jpeg"
