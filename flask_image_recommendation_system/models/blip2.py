@@ -15,7 +15,7 @@ model, vis_processors, txt_processors = load_model_and_preprocess(name="blip2_fe
 print('model loading completed')
 
 print('start reading csv file')
-df_sample = pd.read_csv('data/20sampleimages.csv')[:2]
+df_sample = pd.read_csv('data/20sampleimages.csv')
 print('read samples completed')
 
 image_list = list(df_sample['photo_image_url'])

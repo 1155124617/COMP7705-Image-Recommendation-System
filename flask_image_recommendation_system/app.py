@@ -41,7 +41,7 @@ def recommend_similar():
     if img is not None:
         images_output_list = []
         for image_path in recommend_images(img):
-            img = Image.open(image_path)
+            img = Image.open(image_path).resize((596,437))
 
             # Naive test
             img_output = BytesIO()
