@@ -41,16 +41,10 @@ def recommend_similar():
     if img is not None:
         images_output_list = []
         for image_path in recommend_images(img):
-            img = Image.open(image_path)
+            images_output_list.append(open_image_bytesio(image_path))
 
-            # Naive test
-            img_output = BytesIO()
-            img.save(img_output, format='jpeg')
-            img_output.seek(0)
-
-            images_output_list.append(img_output)
-
-        return render_template('index.html', images_output_list=images_output_list)
+        img_data = open_image_bytesio('temp/image.jpeg')
+        return render_template('index.html', images_output_list=images_output_list, img_data=img_data)
 
     return render_template('index.html')
 
@@ -64,6 +58,15 @@ def transfer_styles():
 @app.template_filter('base64_encode')
 def base64_encode(data):
     return base64.b64encode(data.getvalue()).decode('utf-8')
+
+
+def open_image_bytesio(image_path):
+    img = Image.open(image_path)
+    img_output = BytesIO()
+    img.save(img_output, format='jpeg')
+    img_output.seek(0)
+
+    return img_output
 
 
 if __name__ == '__main__':

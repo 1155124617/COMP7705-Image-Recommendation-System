@@ -2,10 +2,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
     height: 100vh;
     margin: 0;
     padding: 20px;
+}
+
+.container {
+    text-align: center;
 }
 
 .uploaded-img {
@@ -25,3 +28,23 @@ body {
     position: relative;
     margin-top: 60px;
 }
+
+h1.text-center.mt-5 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30vh;
+    margin: 0;
+    font-size: 48px;
+    color: #333;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-image: url("/static/images/image.jpeg"); /* Replace with the actual URL or path of your background image */
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
