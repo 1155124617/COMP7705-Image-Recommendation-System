@@ -1,11 +1,15 @@
 from flask import Flask, render_template, request
+from flask_cors import CORS
 from io import BytesIO
 from PIL import Image
-from models.blip2 import recommend_images
+from models.blip2 import recommend_images_to_files_list, recommend_images_to_urls
+# from test.test import recommend_images_to_urls, recommend_images_to_files_list
 
 import base64
 
 app = Flask(__name__)
+
+CORS(app)
 
 img = None
 
@@ -40,7 +44,7 @@ def recommend_similar():
 
     if img is not None:
         images_output_list = []
-        for image_path in recommend_images(img):
+        for image_path in recommend_images_to_files_list(img):
             images_output_list.append(open_image_bytesio(image_path))
 
         img_data = open_image_bytesio('temp/image.jpeg')
@@ -52,6 +56,18 @@ def recommend_similar():
 @app.route('/transfer_styles')
 def transfer_styles():
     return render_template('index.html')
+
+
+@app.route('/mobile_recommend', methods=['POST'])
+def mobile_recommend():
+    if 'image' not in request.files:
+        return "No image file in the request", 400
+
+    file = request.files['image']
+    img = Image.open(file)
+
+    recommended_image_urls = recommend_images_to_urls(img)
+    return recommended_image_urls
 
 
 # 自定义过滤器

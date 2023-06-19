@@ -37,28 +37,35 @@ for si in sample_list:
 # features_image_list = [model.extract_features(si, mode="image").image_embeds_proj for si in sample_list]
 
 
-def recommend_images(image):
+def recommend_images_to_files_list(image):
+    rank_image_index = rank_6(image)
+
+    count = 1
+    image_file_list = []
+    for url in df_sample.loc[rank_image_index]['photo_image_url']:
+        urllib.request.urlretrieve(url, f"temp/output_image_{count}.jpeg")
+        image_file_list.append(f"temp/output_image_{count}.jpeg")
+        count += 1
+    return image_file_list
+
+
+def recommend_images_to_urls(image):
+    rank_image_index = rank_6(image)
+
+    return df_sample.loc[rank_image_index]["photo_image_url"].tolist()
+
+
+def rank_6(image):
     raw_image = image.convert('RGB').resize((596, 437))
-
     print('image resize completed')
-
     image = vis_processors["eval"](raw_image).unsqueeze(0).to(device)
     features_query_image = model.extract_features({'image': image}, mode='image')
     print('query image features extraction completed')
-
     # image to image searching
     score_list = []
     for feature in features_image_list:
         similarity = (features_query_image.image_embeds_proj @ feature[:, 0, :].t()).max()
         score_list.append(similarity)
-
     score = np.array(score_list)
-    rank_image = np.argsort(-score)[0:6]
-
-    count = 1
-    return_value_list = []
-    for url in df_sample.loc[rank_image]['photo_image_url']:
-        urllib.request.urlretrieve(url, f"temp/output_image_{count}.jpeg")
-        return_value_list.append(f"temp/output_image_{count}.jpeg")
-        count += 1
-    return return_value_list
+    rank_image_index = np.argsort(-score)[0:6]
+    return rank_image_index
