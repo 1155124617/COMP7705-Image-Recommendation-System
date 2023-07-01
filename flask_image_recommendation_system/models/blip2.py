@@ -49,29 +49,6 @@ with open('embeddings/features_25k_image_list.pkl', 'rb') as f:
     features_25k_image_list = CPU_Unpickler(f).load()
 print("Feature Embeddings load successfully")
 
-'''print('start reading csv file')
-df_sample = pd.read_csv('data/20sampleimages.csv')
-print('read samples completed')
-
-image_list = list(df_sample['photo_image_url'])
-sample_list = []
-print(f'start downloading samples, sample size : {len(image_list)}')
-for image_url in image_list:
-    urllib.request.urlretrieve(image_url, "temp/gfg.png")
-    raw_image = Image.open("temp/gfg.png").convert("RGB").resize((596, 437))
-    print('image downloaded')
-    image = vis_processors["eval"](raw_image).unsqueeze(0).to(device)
-    print('image preprocessed')
-    sample_list.append({"image": image})
-
-print('start extracting features')
-features_image_list = []
-for si in sample_list:
-    features_image_list.append(model.extract_features(si, mode='image').image_embeds_proj)
-    print('feature extracted')'''
-# features_image_list = [model.extract_features(si, mode="image").image_embeds_proj for si in sample_list]
-
-
 def recommend_images_to_files_list(image):
     rank_image_index = rank_6(image)
 

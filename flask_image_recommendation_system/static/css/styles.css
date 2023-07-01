@@ -42,7 +42,7 @@ h1.text-center.mt-5 {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    background-image: url("/static/images/image.jpeg"); /* Replace with the actual URL or path of your background image */
+    background-image: url("/static/images/bg.jpeg"); /* Replace with the actual URL or path of your background image */
     background-repeat: no-repeat;
     background-size: cover;
 }

@@ -1,11 +1,16 @@
+import base64
+import os
+import shutil
+from io import BytesIO
+
+from PIL import Image
 from flask import Flask, render_template, request
 from flask_cors import CORS
-from io import BytesIO
-from PIL import Image
+
+from const.pathname import *
+from style_transfer.S2WAT.style_transfer_model import do_style_transfer
 from models.blip2 import recommend_images_to_files_list, recommend_images_to_urls
 # from test.test import recommend_images_to_urls, recommend_images_to_files_list
-
-import base64
 
 app = Flask(__name__)
 
@@ -16,7 +21,7 @@ img = None
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template(INDEX_PAGE)
 
 
 @app.route('/recommend', methods=['POST'])
@@ -25,37 +30,46 @@ def recommend():
         img_file = request.files['image']
         img = Image.open(img_file)
 
-        image_path = 'temp/image.jpeg'
+        image_path = os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME)
         img.save(image_path)
 
         img_data = BytesIO()
         img.save(img_data, format='JPEG')
         img_data.seek(0)
 
-        return render_template('index.html', img_data=img_data)
+        return render_template(INDEX_PAGE, img_data=img_data)
 
-    return render_template('index.html')
+    return render_template(INDEX_PAGE)
 
 
 @app.route('/recommend_similar')
 def recommend_similar():
-    image_path = 'temp/image.jpeg'
-    img = Image.open(image_path)
+    uploaded_image_path = os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME)
+    img = Image.open(uploaded_image_path)
 
     if img is not None:
-        images_output_list = []
+        image_show_list = []
         for image_path in recommend_images_to_files_list(img):
-            images_output_list.append(open_image_bytesio(image_path))
+            image_show_list.append(open_image_bytesio(image_path))
 
-        img_data = open_image_bytesio('temp/image.jpeg')
-        return render_template('index.html', images_output_list=images_output_list, img_data=img_data)
+        uploaded_image_data = open_image_bytesio(uploaded_image_path)
+        return render_template(INDEX_PAGE, images_output_list=image_show_list, img_data=uploaded_image_data)
 
-    return render_template('index.html')
+    return render_template(INDEX_PAGE)
 
 
 @app.route('/transfer_styles')
 def transfer_styles():
-    return render_template('index.html')
+    uploaded_image_data = open_image_bytesio(os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME))
+    shutil.move(os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME),
+                os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
+    do_style_transfer()
+    image_show_list = []
+    output_image_names = os.listdir(OUTPUT_IMAGE_DIR)
+    for output_image_name in output_image_names:
+        image_show_list.append(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, output_image_name)))
+
+    return render_template(INDEX_PAGE, img_data=uploaded_image_data, images_output_list=image_show_list)
 
 
 @app.route('/mobile_recommend', methods=['POST'])
