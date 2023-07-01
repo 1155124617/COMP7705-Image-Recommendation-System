@@ -84,6 +84,25 @@ def mobile_recommend():
     return recommended_image_urls
 
 
+@app.route('/mobile_transfer_styles', method=['POST'])
+def mobile_transfer_styles():
+    if 'image' not in request.files:
+        return "No image file in the request", 400
+
+    img_file = request.files['image']
+    img = Image.open(img_file)
+
+    image_path = os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME)
+    img.save(image_path)
+
+    do_style_transfer()
+    image_show_list = []
+    output_image_names = os.listdir(OUTPUT_IMAGE_DIR)
+    for output_image_name in output_image_names:
+        image_show_list.append(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, output_image_name)))
+    return image_show_list
+
+
 # 自定义过滤器
 @app.template_filter('base64_encode')
 def base64_encode(data):
