@@ -9,8 +9,8 @@ from flask_cors import CORS
 
 from const.pathname import *
 from style_transfer.S2WAT.style_transfer_model import do_style_transfer
-from models.blip2 import recommend_images_to_files_list, recommend_images_to_urls
-# from test.test import recommend_images_to_urls, recommend_images_to_files_list
+# from models.blip2 import recommend_images_to_files_list, recommend_images_to_urls
+from test.test import recommend_images_to_urls, recommend_images_to_files_list
 
 app = Flask(__name__)
 
@@ -84,7 +84,7 @@ def mobile_recommend():
     return recommended_image_urls
 
 
-@app.route('/mobile_transfer_styles', method=['POST'])
+@app.route('/mobile_transfer_styles', methods=['POST'])
 def mobile_transfer_styles():
     if 'image' not in request.files:
         return "No image file in the request", 400
@@ -99,7 +99,8 @@ def mobile_transfer_styles():
     image_show_list = []
     output_image_names = os.listdir(OUTPUT_IMAGE_DIR)
     for output_image_name in output_image_names:
-        image_show_list.append(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, output_image_name)))
+        image_show_list.append(base64.encodebytes(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, output_image_name))
+                                                  .getvalue()).decode('utf-8'))
     return image_show_list
 
 
@@ -120,3 +121,4 @@ def open_image_bytesio(image_path):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
+
