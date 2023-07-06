@@ -61,8 +61,9 @@ def recommend_similar():
 @app.route('/transfer_styles')
 def transfer_styles():
     uploaded_image_data = open_image_bytesio(os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME))
-    shutil.move(os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME),
-                os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
+    # shutil.move(os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME),
+    #             os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
+    Image.open(os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME)).resize((200, 200)).save(os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
     do_style_transfer()
     image_show_list = []
     output_image_names = os.listdir(OUTPUT_IMAGE_DIR)
@@ -93,7 +94,7 @@ def mobile_transfer_styles():
     img = Image.open(img_file)
 
     image_path = os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME)
-    img.save(image_path)
+    img.resize((200, 200)).save(image_path)
 
     do_style_transfer()
     image_show_list = []

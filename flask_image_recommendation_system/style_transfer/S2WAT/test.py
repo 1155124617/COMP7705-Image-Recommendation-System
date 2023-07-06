@@ -11,7 +11,7 @@ from tools import save_transferred_imgs, Sample_Test_Net
 
 parser = argparse.ArgumentParser()
 # Basic options
-parser.add_argument('--input_dir', type=str, default='./input/Test',
+parser.add_argument('--input_dir', type=str, default='./input',
                     help='Directory path to a batch of content and style images ' + \
                     'which are loaded in "Content"/"Style" subfolders respectively.')
 parser.add_argument('--output_dir', type=str, default='./output',
