@@ -11,31 +11,8 @@
     <div class="container button-container">
         <h1 class="text-center mt-5">Welcome to the Image Recommendation System!</h1>
         <br/>
-        <form action="/recommend" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <input type="file" name="image" accept="image/*" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Upload</button>
-        </form>
-        <br/>
-        {% if img_data %}
-            <img src="data:image/jpeg;base64,{{ img_data|base64_encode }}" alt="Uploaded Image" class="uploaded-img">
-            <br/>
-            <div class="text-center mt-3">
-                <a href="/recommend_similar" class="btn btn-success">Recommend similar images for me!</a>
-                <a href="/transfer_styles" class="btn btn-info">Transfer styles for me!</a>
-            </div>
-        {% endif %}
-
-        {% if images_output_list %}
-            <div class="row mt-5">
-                {% for img_output in images_output_list %}
-                    <div class="col-md-4">
-                        <img src="data:image/jpeg;base64,{{ img_output|base64_encode }}" alt="Uploaded Image" class="uploaded-img">
-                    </div>
-                {% endfor  %}
-            </div>
-        {% endif %}
+        <a href="/recommend_page" class="btn btn-success">Recommend Images or Transfer Default Styles</a>
+        <a href="/given_style_page" class="btn btn-info">Transfer Self-Design Style</a>
     </div>
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>

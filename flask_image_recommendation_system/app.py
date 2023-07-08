@@ -16,12 +16,20 @@ app = Flask(__name__)
 
 CORS(app)
 
-img = None
-
-
 @app.route('/')
 def index():
+
     return render_template(INDEX_PAGE)
+
+
+@app.route('/recommend_page')
+def recommend_page():
+    return render_template(RECOMMEND_TRANSFER_PAGE)
+
+
+@app.route('/given_style_page')
+def given_style_page():
+    return render_template(GIVEN_STYLE_TRANSFER_PAGE)
 
 
 @app.route('/recommend', methods=['POST'])
@@ -37,7 +45,7 @@ def recommend():
         img.save(img_data, format='JPEG')
         img_data.seek(0)
 
-        return render_template(INDEX_PAGE, img_data=img_data)
+        return render_template(RECOMMEND_TRANSFER_PAGE, img_data=img_data)
 
     return render_template(INDEX_PAGE)
 
@@ -53,9 +61,9 @@ def recommend_similar():
             image_show_list.append(open_image_bytesio(image_path))
 
         uploaded_image_data = open_image_bytesio(uploaded_image_path)
-        return render_template(INDEX_PAGE, images_output_list=image_show_list, img_data=uploaded_image_data)
+        return render_template(RECOMMEND_TRANSFER_PAGE, images_output_list=image_show_list, img_data=uploaded_image_data)
 
-    return render_template(INDEX_PAGE)
+    return render_template(RECOMMEND_TRANSFER_PAGE)
 
 
 @app.route('/transfer_styles')
@@ -70,7 +78,35 @@ def transfer_styles():
     for output_image_name in output_image_names:
         image_show_list.append(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, output_image_name)))
 
-    return render_template(INDEX_PAGE, img_data=uploaded_image_data, images_output_list=image_show_list)
+    return render_template(RECOMMEND_TRANSFER_PAGE, img_data=uploaded_image_data, images_output_list=image_show_list)
+
+
+@app.route('/upload_content_style_images', methods=['POST'])
+def upload_content_style_images():
+    content_image = Image.open(request.files['content_image'])
+    style_image = Image.open(request.files['style_image'])
+
+    content_image.resize((200, 200)).save(os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
+    style_image.resize((200, 200)).save(os.path.join(INPUT_STYLE_IMAGE_DIR, INPUT_STYLE_IMAGE_NAME))
+
+    content_image_stream = open_image_bytesio(os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
+    style_image_stream = open_image_bytesio(os.path.join(INPUT_STYLE_IMAGE_DIR, INPUT_STYLE_IMAGE_NAME))
+
+    return render_template(GIVEN_STYLE_TRANSFER_PAGE, content_image=content_image_stream, style_image=style_image_stream)
+
+
+@app.route('/transfer_given_style')
+def transfer_given_style():
+    do_style_transfer(INPUT_STYLE_IMAGE_DIR)
+    image_show_list = []
+    output_image_names = os.listdir(OUTPUT_IMAGE_DIR)
+    for output_image_name in output_image_names:
+        image_show_list.append(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, output_image_name)))
+
+    content_image_stream = open_image_bytesio(os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
+    style_image_stream = open_image_bytesio(os.path.join(INPUT_STYLE_IMAGE_DIR, INPUT_STYLE_IMAGE_NAME))
+    return render_template(GIVEN_STYLE_TRANSFER_PAGE, content_image=content_image_stream,
+                           style_image=style_image_stream ,images_output_list=image_show_list)
 
 
 @app.route('/mobile_recommend', methods=['POST'])
@@ -95,6 +131,26 @@ def mobile_transfer_styles():
 
     image_path = os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME)
     img.resize((200, 200)).save(image_path)
+
+    do_style_transfer()
+    image_show_list = []
+    output_image_names = os.listdir(OUTPUT_IMAGE_DIR)
+    for output_image_name in output_image_names:
+        image_show_list.append(base64.encodebytes(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, output_image_name))
+                                                  .getvalue()).decode('utf-8'))
+    return image_show_list
+
+
+@app.route('/mobile_transfer_given_style', methods=['POST'])
+def mobile_transfer_given_style():
+    if 'content_image' not in request.files and 'style_image' not in request.files:
+        return "Please upload content image and style image", 400
+
+    content_image = Image.open(request.files['content_image'])
+    style_image = Image.open(request.files['style_image'])
+
+    content_image.resize((200, 200)).save(os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
+    style_image.resize((200, 200)).save(os.path.join(INPUT_STYLE_IMAGE_DIR, INPUT_STYLE_IMAGE_NAME))
 
     do_style_transfer()
     image_show_list = []

@@ -66,5 +66,5 @@ network.to(device)
 
 # ===============================================Execute Style Transfer===============================================
 
-def do_style_transfer():
-    save_transferred_imgs(network, INPUT_IMAGE_DIR, OUTPUT_IMAGE_DIR, device=device)
+def do_style_transfer(input_style_image_dir = INPUT_STYLE_IMAGE_DIR):
+    save_transferred_imgs(network, INPUT_CONTENT_IMAGE_DIR, input_style_image_dir, OUTPUT_IMAGE_DIR, device=device)

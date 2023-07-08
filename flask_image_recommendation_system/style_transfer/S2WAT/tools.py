@@ -151,17 +151,17 @@ def save_sample_imgs_arbitrarySize(network, samples_path, img_saved_path, device
 
 
 @torch.no_grad()
-def save_transferred_imgs(network, samples_path, img_saved_path, device=torch.device('cpu')):
+def save_transferred_imgs(network, content_images_path, style_images_path, img_saved_path, device=torch.device('cpu')):
   print('Image generation starts:')
 
-  i_c_names = os.listdir(os.path.join(samples_path, 'Content'))
-  i_s_names = os.listdir(os.path.join(samples_path, 'Style'))
+  i_c_names = os.listdir(content_images_path)
+  i_s_names = os.listdir(style_images_path)
   for i_c_name in tqdm(i_c_names):
     if i_c_name in IGNORE_FILE_LIST:
         continue
     for i_s_name in tqdm(i_s_names):
-      i_c_path = os.path.join(samples_path, 'Content', i_c_name)
-      i_s_path = os.path.join(samples_path, 'Style', i_s_name)
+      i_c_path = os.path.join(content_images_path, i_c_name)
+      i_s_path = os.path.join(style_images_path, i_s_name)
       i_c, i_s = content_style_transTo_pt(i_c_path, i_s_path)
       i_cs = network(i_c.to(device), i_s.to(device), arbitrary_input=True)
 
