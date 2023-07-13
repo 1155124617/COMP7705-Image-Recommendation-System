@@ -53,18 +53,15 @@ network = Sample_Test_Net(encoder, decoder, transModule)
 print('loading checkpoint...')
 checkpoint = torch.load(MODEL_LOADING_PATH, map_location=device)
 
-network.encoder.load_state_dict(checkpoint['encoder'])
-network.decoder.load_state_dict(checkpoint['decoder'])
-network.transModule.load_state_dict(checkpoint['transModule'])
-
 loss_count_interval = checkpoint['loss_count_interval']
 print('loading finished')
-
-# Load the model to device
-network.to(device)
 
 
 # ===============================================Execute Style Transfer===============================================
 
 def do_style_transfer(input_style_image_dir = INPUT_STYLE_IMAGE_DIR):
+    network.encoder.load_state_dict(checkpoint['encoder'])
+    network.decoder.load_state_dict(checkpoint['decoder'])
+    network.transModule.load_state_dict(checkpoint['transModule'])
+    network.to(device)
     save_transferred_imgs(network, INPUT_CONTENT_IMAGE_DIR, input_style_image_dir, OUTPUT_IMAGE_DIR, device=device)
