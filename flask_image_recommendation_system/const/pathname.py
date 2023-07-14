@@ -10,6 +10,7 @@ OUTPUT_REC_DIR = "recommendation"
 
 # Style transfer
 INPUT_CONTENT_IMAGE_DIR = "style_transfer/S2WAT/input/Content"
+DEFAULT_STYLE_IMAGE_DIR = "style_transfer/S2WAT/input/Style"
 INPUT_STYLE_IMAGE_DIR = "style_transfer/S2WAT/input/UserStyle"
 INPUT_STYLE_IMAGE_NAME = "style.jpeg"
 INPUT_IMAGE_DIR = "style_transfer/S2WAT/input"
