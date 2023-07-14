@@ -12,54 +12,54 @@ from const.pathname import *
 output_dir = Path(OUTPUT_IMAGE_DIR)
 output_dir.mkdir(exist_ok=True, parents=True)
 
-# Models Config
-transModule_config = TransModule_Config(
-    nlayer=3,
-    d_model=768,
-    nhead=8,
-    mlp_ratio=4,
-    qkv_bias=False,
-    attn_drop=0.,
-    drop=0.,
-    drop_path=0.,
-    act_layer=nn.GELU,
-    norm_layer=nn.LayerNorm,
-    norm_first=True
-)
-
-# Hardware Setting
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-if torch.cuda.is_available():
-    torch.cuda.empty_cache()
-
-# Models
-encoder = S2WAT(
-    img_size=224,
-    patch_size=2,
-    in_chans=3,
-    embed_dim=192,
-    depths=[2, 2, 2],
-    nhead=[3, 6, 12],
-    strip_width=[2, 4, 7],
-    drop_path_rate=0.,
-    patch_norm=True
-)
-decoder = Decoder_MVGG(d_model=768, seq_input=True)
-transModule = TransModule(transModule_config)
-
-network = Sample_Test_Net(encoder, decoder, transModule)
-
-# Load the checkpoint
-print('loading checkpoint...')
-checkpoint = torch.load(MODEL_LOADING_PATH, map_location=device)
-
-loss_count_interval = checkpoint['loss_count_interval']
-print('loading finished')
-
 
 # ===============================================Execute Style Transfer===============================================
 
 def do_style_transfer(input_style_image_dir = INPUT_STYLE_IMAGE_DIR):
+    # Models Config
+    transModule_config = TransModule_Config(
+        nlayer=3,
+        d_model=768,
+        nhead=8,
+        mlp_ratio=4,
+        qkv_bias=False,
+        attn_drop=0.,
+        drop=0.,
+        drop_path=0.,
+        act_layer=nn.GELU,
+        norm_layer=nn.LayerNorm,
+        norm_first=True
+    )
+
+    # Hardware Setting
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+    # Models
+    encoder = S2WAT(
+        img_size=224,
+        patch_size=2,
+        in_chans=3,
+        embed_dim=192,
+        depths=[2, 2, 2],
+        nhead=[3, 6, 12],
+        strip_width=[2, 4, 7],
+        drop_path_rate=0.,
+        patch_norm=True
+    )
+    decoder = Decoder_MVGG(d_model=768, seq_input=True)
+    transModule = TransModule(transModule_config)
+
+    network = Sample_Test_Net(encoder, decoder, transModule)
+
+    # Load the checkpoint
+    print('loading checkpoint...')
+    checkpoint = torch.load(MODEL_LOADING_PATH, map_location=device)
+
+    loss_count_interval = checkpoint['loss_count_interval']
+    print('loading finished')
+
     network.encoder.load_state_dict(checkpoint['encoder'])
     network.decoder.load_state_dict(checkpoint['decoder'])
     network.transModule.load_state_dict(checkpoint['transModule'])

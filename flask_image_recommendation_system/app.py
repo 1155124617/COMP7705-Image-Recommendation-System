@@ -8,8 +8,8 @@ from flask import Flask, render_template, request
 from flask_cors import CORS
 
 from const.pathname import *
-from rec_models.blip2 import recommend_images_to_files_list, recommend_images_to_urls
-# from test.test import recommend_images_to_urls, recommend_images_to_files_list, recommend_text_to_files_list
+# from rec_models.blip2 import recommend_images_to_files_list, recommend_images_to_urls, recommend_text_to_files_list
+from test.test import recommend_images_to_urls, recommend_images_to_files_list, recommend_text_to_files_list
 from style_transfer.S2WAT.style_transfer_model import do_style_transfer
 
 app = Flask(__name__)
@@ -35,21 +35,18 @@ def given_style_page():
 
 @app.route('/upload_single_image', methods=['POST'])
 def upload_single_image():
-    if request.method == 'POST':
-        img_file = request.files['image']
-        img = Image.open(img_file)
+    img_file = request.files['image']
+    img = Image.open(img_file)
 
-        image_path = os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME)
-        rm_rf_directory(image_path)
-        img.save(image_path)
+    image_path = os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME)
+    rm_rf_directory(image_path)
+    img.save(image_path)
 
-        img_data = BytesIO()
-        img.save(img_data, format='JPEG')
-        img_data.seek(0)
+    img_data = BytesIO()
+    img.save(img_data, format='JPEG')
+    img_data.seek(0)
 
-        return render_template(RECOMMEND_TRANSFER_PAGE, img_data=img_data)
-
-    return render_template(INDEX_PAGE)
+    return render_template(RECOMMEND_TRANSFER_PAGE, img_data=img_data)
 
 
 @app.route('/recommend_similar')
