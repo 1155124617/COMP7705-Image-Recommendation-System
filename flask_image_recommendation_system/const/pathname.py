@@ -5,7 +5,8 @@ GIVEN_STYLE_TRANSFER_PAGE = "image_given_style_transfer.html"
 
 # Image recommendation
 UPLOADED_IMAGE_DIR = "temp"
-UPLOADED_IMAGE_NAME = "image.jpeg"
+UPLOADED_IMAGE_NAME = "uploaded_image.jpeg"
+OUTPUT_REC_DIR = "recommendation"
 
 # Style transfer
 INPUT_CONTENT_IMAGE_DIR = "style_transfer/S2WAT/input/Content"

@@ -1,4 +1,5 @@
 import pickle
+import os
 
 import torch
 import urllib.request
@@ -9,6 +10,7 @@ import io
 
 from tqdm import tqdm
 from PIL import Image
+from const.pathname import *
 from lavis.models import load_model_and_preprocess
 
 class CPU_Unpickler(pickle.Unpickler):
@@ -50,28 +52,48 @@ with open('embeddings/features_25k_image_list.pkl', 'rb') as f:
 print("Feature Embeddings load successfully")
 
 def recommend_images_to_files_list(image):
-    rank_image_index = rank_6(image)
+    raw_image = image.convert('RGB').resize((596, 437))
+    print('image resize completed')
+    image = vis_processors["eval"](raw_image).unsqueeze(0).to(device)
+    features_query_image = model.extract_features({'image': image}, mode='image')
+
+    rank_image_index = rank_6(features_query_image.image_embeds_proj)
 
     count = 1
     image_file_list = []
     for url in datasets['photos'].loc[rank_image_index]:
-        urllib.request.urlretrieve(url, f"temp/output_image_{count}.jpeg")
-        image_file_list.append(f"temp/output_image_{count}.jpeg")
+        urllib.request.urlretrieve(url, os.path.join(OUTPUT_REC_DIR, f"output_image_{count}.jpeg"))
+        image_file_list.append(os.path.join(OUTPUT_REC_DIR, f"output_image_{count}.jpeg"))
         count += 1
     return image_file_list
 
 
 def recommend_images_to_urls(image):
-    rank_image_index = rank_6(image)
-
-    return datasets['photos'].loc[rank_image_index].tolist()
-
-
-def rank_6(image):
     raw_image = image.convert('RGB').resize((596, 437))
     print('image resize completed')
     image = vis_processors["eval"](raw_image).unsqueeze(0).to(device)
     features_query_image = model.extract_features({'image': image}, mode='image')
+
+    rank_image_index = rank_6(features_query_image.image_embeds_proj)
+
+    return datasets['photos'].loc[rank_image_index].tolist()
+
+
+def recommend_text_to_files_list(text):
+    features_query_text = model.extract_features({'input_text': [text]}, mode='text')
+
+    rank_image_index = rank_6(features_query_text.text_embeds_proj)
+
+    count = 1
+    image_file_list = []
+    for url in datasets['photos'].loc[rank_image_index]:
+        urllib.request.urlretrieve(url, os.path.join(OUTPUT_REC_DIR, f"output_image_{count}.jpeg"))
+        image_file_list.append(os.path.join(OUTPUT_REC_DIR, f"output_image_{count}.jpeg"))
+        count += 1
+    return image_file_list
+
+
+def rank_6(feature_embeddings):
     print('query image features extraction completed')
     # image to image searching
     score_list = []
@@ -81,7 +103,7 @@ def rank_6(image):
         if feature is None:
             score_list.append(0)
             continue
-        similarity = (features_query_image.image_embeds_proj @ feature[:, 0, :].t()).max()
+        similarity = (feature_embeddings @ feature[:, 0, :].t()).max()
         score_list.append(similarity)
     score = np.array(score_list)
     rank_image_index = np.argsort(-score)[0:6]

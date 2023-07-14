@@ -11,7 +11,14 @@
     <div class="container button-container">
         <h1 class="text-center mt-5">Welcome to the Image Recommendation System!</h1>
         <br/>
-        <form action="/recommend" method="POST" enctype="multipart/form-data">
+        <div>
+            <form action="/recommend_with_text" method="POST">
+                <input name="search_text">
+                <input type="submit" value="Search">
+            </form>
+        </div>
+        <br>
+        <form action="/upload_single_image" method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 <input type="file" name="image" accept="image/*" required>
             </div>
