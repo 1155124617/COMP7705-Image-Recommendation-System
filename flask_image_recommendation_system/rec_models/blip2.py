@@ -80,7 +80,8 @@ def recommend_images_to_urls(image):
 
 
 def recommend_text_to_files_list(text):
-    features_query_text = model.extract_features({'input_text': [text]}, mode='text')
+    text = txt_processors["eval"](text)
+    features_query_text = model.extract_features({'text_input': [text]}, mode='text')
 
     rank_image_index = rank_6(features_query_text.text_embeds_proj)
 
