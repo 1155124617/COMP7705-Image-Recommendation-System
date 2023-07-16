@@ -1,17 +1,17 @@
-import pickle
-import os
-
-import torch
-import urllib.request
-import numpy as np
-import pandas as pd
 import glob
 import io
+import os
+import pickle
+import urllib.request
 
-from tqdm import tqdm
-from PIL import Image
-from const.pathname import *
+import numpy as np
+import pandas as pd
+import torch
 from lavis.models import load_model_and_preprocess
+from tqdm import tqdm
+
+from const.pathname import *
+
 
 class CPU_Unpickler(pickle.Unpickler):
     def find_class(self, module, name):
@@ -92,6 +92,15 @@ def recommend_text_to_files_list(text):
         image_file_list.append(os.path.join(OUTPUT_REC_DIR, f"output_image_{count}.jpeg"))
         count += 1
     return image_file_list
+
+
+def recommend_text_to_urls(text):
+    text = txt_processors["eval"](text)
+    features_query_text = model.extract_features({'text_input': [text]}, mode='text')
+
+    rank_image_index = rank_6(features_query_text.text_embeds_proj)
+
+    return datasets['photos'].loc[rank_image_index].tolist()
 
 
 def rank_6(feature_embeddings):
