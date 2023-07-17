@@ -1,4 +1,3 @@
-import objgraph
 import torch
 import torch.nn as nn
 from pathlib import Path
@@ -65,6 +64,4 @@ network.to(device)
 
 # ===============================================Execute Style Transfer===============================================
 def do_style_transfer(input_style_image_dir=DEFAULT_STYLE_IMAGE_DIR):
-    objgraph.show_growth()
-
     save_transferred_imgs(network, INPUT_CONTENT_IMAGE_DIR, input_style_image_dir, OUTPUT_IMAGE_DIR, device=device)
