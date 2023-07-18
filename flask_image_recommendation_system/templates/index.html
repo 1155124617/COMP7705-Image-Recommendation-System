@@ -15,6 +15,17 @@
             <a href="/recommend_page" class="btn btn-success">Recommend Images or Transfer Default Styles</a>
             <a href="/given_style_page" class="btn btn-info">Transfer Self-Design Style</a>
         </div>
+
+        {% if image_wall is not none %}
+        <div class="row mt-5">
+            {% for image in image_wall %}
+            <div class="col-md-4">
+                <img src="{{image}}" alt="Boutique Image" class="image-wall-image">
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
     </div>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </body>

@@ -51,6 +51,7 @@ with open('embeddings/features_25k_image_list.pkl', 'rb') as f:
     features_25k_image_list = CPU_Unpickler(f).load()
 print("Feature Embeddings load successfully")
 
+
 def recommend_images_to_files_list(image):
     raw_image = image.convert('RGB').resize((596, 437))
     print('image resize completed')
@@ -118,3 +119,11 @@ def rank_6(feature_embeddings):
     score = np.array(score_list)
     rank_image_index = np.argsort(-score)[0:6]
     return rank_image_index
+
+
+def random_6(start, end, size):
+    return np.random.randint(low=start, high=end, size=size)
+
+
+def get_random_image_urls():
+    return datasets['photos'].loc[random_6(0, len(datasets['photos']), 6)].tolist()

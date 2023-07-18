@@ -8,7 +8,7 @@ from flask_cors import CORS
 
 from const.pathname import *
 from style_transfer.S2WAT.style_transfer_model import do_style_transfer
-from rec_models.blip2 import recommend_images_to_files_list, recommend_images_to_urls, recommend_text_to_files_list, recommend_text_to_urls
+from rec_models.blip2 import recommend_images_to_files_list, recommend_images_to_urls, recommend_text_to_files_list, recommend_text_to_urls, get_random_image_urls
 # from test.test import recommend_images_to_urls, recommend_images_to_files_list, recommend_text_to_files_list, \
 #     recommend_text_to_urls
 
@@ -20,7 +20,8 @@ CORS(app)
 
 @app.route('/')
 def index():
-    return render_template(INDEX_PAGE)
+    images = get_random_image_urls()
+    return render_template(INDEX_PAGE, image_wall=images)
 
 
 @app.route('/recommend_page')
