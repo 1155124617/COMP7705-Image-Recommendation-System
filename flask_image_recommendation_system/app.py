@@ -1,4 +1,5 @@
 import base64
+import json
 import os
 from io import BytesIO
 
@@ -8,9 +9,9 @@ from flask_cors import CORS
 
 from const.pathname import *
 from style_transfer.S2WAT.style_transfer_model import do_style_transfer
-from rec_models.blip2 import recommend_images_to_files_list, recommend_images_to_urls, recommend_text_to_files_list, recommend_text_to_urls, get_random_image_urls
-# from test.test import recommend_images_to_urls, recommend_images_to_files_list, recommend_text_to_files_list, \
-#     recommend_text_to_urls
+# from rec_models.blip2 import recommend_images_to_files_list, recommend_images_to_urls, recommend_text_to_files_list, recommend_text_to_urls, get_random_image_urls
+from test.test import recommend_images_to_urls, recommend_images_to_files_list, recommend_text_to_files_list, \
+    recommend_text_to_urls, get_random_image_urls
 
 app = Flask(__name__)
 request_id = 0
@@ -26,86 +27,56 @@ def index():
 
 @app.route('/recommend_page')
 def recommend_page():
-    return render_template(RECOMMEND_TRANSFER_PAGE)
+    return render_template(RECOMMEND_PAGE)
 
 
-@app.route('/given_style_page')
-def given_style_page():
-    return render_template(GIVEN_STYLE_TRANSFER_PAGE)
+@app.route('/style_transfer_page')
+def style_transfer_page():
+    return render_template(STYLE_TRANSFER_PAGE)
 
 
-@app.route('/upload_single_image', methods=['POST'])
-def upload_single_image():
-    img_file = request.files['image']
-    img = Image.open(img_file)
-
-    image_path = os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME)
-    img.save(image_path)
-
-    img_data = BytesIO()
-    img.save(img_data, format='JPEG')
-    img_data.seek(0)
-
-    return render_template(RECOMMEND_TRANSFER_PAGE, img_data=img_data)
-
-
-@app.route('/recommend_similar')
+@app.route('/recommend_similar', methods=['POST'])
 def recommend_similar():
-    uploaded_image_path = os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME)
-    img = Image.open(uploaded_image_path)
+    data = request.json
+    img = Image.open(BytesIO(base64.b64decode(data['image_data'])))
 
     if img is not None:
-        image_show_list = []
-        for image_path in recommend_images_to_files_list(img):
-            image_show_list.append(open_image_bytesio(image_path))
+        image_show_list = recommend_images_to_urls(img)
 
-        uploaded_image_data = open_image_bytesio(uploaded_image_path)
-        return render_template(RECOMMEND_TRANSFER_PAGE, images_output_list=image_show_list, img_data=uploaded_image_data)
+        return json.dumps({'urls': image_show_list})
 
-    return render_template(RECOMMEND_TRANSFER_PAGE)
+    print("img is None")
+    return render_template(RECOMMEND_PAGE)
 
 
 @app.route('/recommend_with_text', methods=['POST'])
 def recommend_with_text():
-    text = request.form['search_text']
+    data = request.json
+    text = data["text"]
 
     if text is not None:
-        image_show_list = []
-        for image_path in recommend_text_to_files_list(text):
-            image_show_list.append(open_image_bytesio(image_path))
+        image_show_list = recommend_text_to_urls(text)
 
-        return render_template(RECOMMEND_TRANSFER_PAGE, images_output_list=image_show_list)
+        return json.dumps({'urls': image_show_list})
 
 
-@app.route('/transfer_styles')
+@app.route('/transfer_styles', methods=['POST'])
 def transfer_styles():
-    uploaded_image_data = open_image_bytesio(os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME))
-    Image.open(os.path.join(UPLOADED_IMAGE_DIR, UPLOADED_IMAGE_NAME)).resize((200, 200)).save(os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
+    data = request.json
+    time_stamp = data['time_stamp']
+    Image.open(BytesIO(base64.b64decode(data['content_image_data']))).resize((200, 200)).save(
+        os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
 
     # Clear output directory
-    rm_rf_directory(OUTPUT_IMAGE_DIR)
+    # rm_rf_directory(OUTPUT_IMAGE_DIR)
 
     do_style_transfer()
     image_show_list = []
     output_image_names = os.listdir(OUTPUT_IMAGE_DIR)
     for output_image_name in output_image_names:
-        image_show_list.append(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, output_image_name)))
+        image_show_list.append(base64_encode(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, output_image_name))))
 
-    return render_template(RECOMMEND_TRANSFER_PAGE, img_data=uploaded_image_data, images_output_list=image_show_list)
-
-
-@app.route('/upload_content_style_images', methods=['POST'])
-def upload_content_style_images():
-    content_image = Image.open(request.files['content_image'])
-    style_image = Image.open(request.files['style_image'])
-
-    content_image.resize((200, 200)).save(os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
-    style_image.resize((200, 200)).save(os.path.join(INPUT_STYLE_IMAGE_DIR, INPUT_STYLE_IMAGE_NAME))
-
-    content_image_stream = open_image_bytesio(os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
-    style_image_stream = open_image_bytesio(os.path.join(INPUT_STYLE_IMAGE_DIR, INPUT_STYLE_IMAGE_NAME))
-
-    return render_template(GIVEN_STYLE_TRANSFER_PAGE, content_image=content_image_stream, style_image=style_image_stream)
+    return json.dumps({'urls': image_show_list})
 
 
 @app.route('/transfer_given_style')
@@ -121,7 +92,7 @@ def transfer_given_style():
 
     content_image_stream = open_image_bytesio(os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
     style_image_stream = open_image_bytesio(os.path.join(INPUT_STYLE_IMAGE_DIR, INPUT_STYLE_IMAGE_NAME))
-    return render_template(GIVEN_STYLE_TRANSFER_PAGE, content_image=content_image_stream,
+    return render_template(STYLE_TRANSFER_PAGE, content_image=content_image_stream,
                            style_image=style_image_stream, images_output_list=image_show_list)
 
 
@@ -224,4 +195,3 @@ if __name__ == '__main__':
 
     # Start App
     app.run(host='0.0.0.0', port=8000)
-

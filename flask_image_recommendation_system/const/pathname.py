@@ -1,7 +1,7 @@
 # Template loading path
 INDEX_PAGE = "index.html"
-RECOMMEND_TRANSFER_PAGE = "image_recommend_styles_transfer.html"
-GIVEN_STYLE_TRANSFER_PAGE = "image_given_style_transfer.html"
+RECOMMEND_PAGE = "image_recommend.html"
+STYLE_TRANSFER_PAGE = "style_transfer.html"
 
 # Image recommendation
 UPLOADED_IMAGE_DIR = "temp"

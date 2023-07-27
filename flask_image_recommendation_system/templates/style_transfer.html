@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="uft-8">
+    <title>Image Recommendation System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+
+<body>
+    <div>
+        <a href="/" class="btn btn-info">Go back to main page</a>
+    </div>
+    <div class="body-container">
+        <div class="container button-container">
+            <h1 class="text-center mt-5">Welcome to the Image Recommendation System!</h1>
+            <br/>
+            <form id="content-image-upload-form" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <input type="file" name="content_image" id="content-image-input" accept="image/*" required>
+                    <button type="submit" class="btn btn-primary">Upload Content Image</button>
+                </div>
+            </form>
+            <form id="style-image-upload-form" method="POST" enctype="multipart/form-data">
+                <div>
+                    <input type="file" name="style_image" id="style-image-input" accept="image/*" required>
+                    <button type="submit" class="btn btn-primary">Upload Style Image</button>
+                </div>
+            </form>
+            <br/>
+
+            <div id="content-image-container"></div>
+            <div id="style-image-container"></div>
+
+            <br/>
+            <div class="text-center mt-3">
+                <a class="btn btn-info" id="default-transfer-button" style="display:none">Transfer default styles for me!</a>
+                <a class="btn btn-success" id="specific-transfer-button" style="display:none">Transfer given style for me!</a>
+            </div>
+
+            <div id="result-container"></div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById('content-image-upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var contentImageInput = document.getElementById('content-image-input');
+            var contentImageFile = contentImageInput.files[0];
+            var contentImageReader = new FileReader();
+            contentImageReader.onloadend = function() {
+                var base64Data = contentImageReader.result.split(',')[1]; // Extract the base64 data from the result
+                // Display the uploaded image on the page
+                var contentImageContainer = document.getElementById('content-image-container');
+                contentImageContainer.innerHTML = '<img src="data:image/jpeg;base64,' + base64Data + '" alt="Uploaded Image" class="uploaded-img", id="content-image">';
+                // Show the process button
+                document.getElementById('default-transfer-button').style.display = 'block';
+
+            };
+            if (contentImageFile) {
+                contentImageReader.readAsDataURL(contentImageFile);
+            }
+        });
+
+         document.getElementById('style-image-upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var styleImageInput = document.getElementById('style-image-input');
+            var styleImageFile = styleImageInput.files[0];
+            var styleImageReader = new FileReader();
+            styleImageReader.onloadend = function() {
+                var base64Data = styleImageReader.result.split(',')[1]; // Extract the base64 data from the result
+                // Display the uploaded image on the page
+                var styleImageContainer = document.getElementById('style-image-container');
+                styleImageContainer.innerHTML = '<img src="data:image/jpeg;base64,' + base64Data + '" alt="Uploaded Image" class="uploaded-img" id="style-image">';
+                // Show the process button
+                document.getElementById('specific-transfer-button').style.display = 'block';
+
+            };
+            if (styleImageFile) {
+                styleImageReader.readAsDataURL(styleImageFile);
+            }
+        });
+
+        document.getElementById('default-transfer-button').addEventListener('click', function() {
+            var contentImageElement = document.getElementById("content-image");
+            if (!contentImageElement) {
+                alert('Please upload a content image first!');
+                return;
+            }
+            var base64Data = contentImageElement.src.split(',')[1];
+            var timestamp = Date.parse(new Date());
+            // Send the base64Data to the backend using fetch or other methods
+            // For example:
+            fetch('/transfer_styles', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content_image_data: base64Data, time_stamp: timestamp })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from the server
+                if (data && data.urls && data.urls.length > 0) {
+                    // Clear previous results (if any)
+                    var resultContainer = document.getElementById('result-container');
+                    resultContainer.innerHTML = '';
+
+                    // Render the URLs on the page
+                    var div = document.createElement('div');
+                    div.className = "row mt-5";
+                    data.urls.forEach(function(url) {
+                        var subDiv = document.createElement("div");
+                        subDiv.className = "col-md-4";
+                        var imgTag = document.createElement('img');
+                        imgTag.src = 'data:image/jpeg;base64,' + url;
+                        imgTag.alt = "Result Image";
+                        imgTag.className = "uploaded-img";
+
+                        subDiv.appendChild(imgTag);
+                        div.appendChild(subDiv);
+                    });
+                    resultContainer.appendChild(div);
+                } else {
+                    console.log('No URLs found in the server response.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+
+</html>

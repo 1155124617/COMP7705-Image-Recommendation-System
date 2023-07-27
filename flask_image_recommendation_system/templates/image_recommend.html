@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="uft-8">
+    <title>Image Recommendation System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+
+<body>
+    <div>
+        <a href="/" class="btn btn-info">Go back to main page</a>
+    </div>
+    <div class="body-container">
+        <div class="container button-container">
+            <h1 class="text-center mt-5">Welcome to the Image Recommendation System!</h1>
+            <br/>
+
+            <div>
+                <form id="text-upload-form" method="POST">
+                    <input type="text" name="search_text" id="text-input">
+                    <button type="submit" class="btn btn-primary" id="text-upload-button">Search</button>
+                </form>
+            </div>
+            <br>
+
+            <!-- HTML code for the upload form -->
+            <form id="image-upload-form" method="post" enctype="multipart/form-data">
+                <input type="file" name="image" id="image-input">
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+
+            <!-- Display the uploaded image -->
+            <div id="image-container"></div>
+
+            <div class="text-center mt-3" id="button-box" style="display:none">
+                    <a class="btn btn-success" id="recommend-button">Recommend similar images for me!</a>
+            </div>
+
+            <div id="result-container">
+
+            </div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <!-- JavaScript code to handle image upload and button visibility -->
+    <script>
+        document.getElementById('text-upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var text = document.getElementById('text-input').value;
+            if (!text) {
+                alert('Please input the search key words');
+                return;
+            }
+            // Send the text to the backend using fetch or other methods
+            fetch('/recommend_with_text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: text })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from the server
+                if (data && data.urls && data.urls.length > 0) {
+                    // Clear previous results (if any)
+                    var resultContainer = document.getElementById('result-container');
+                    resultContainer.innerHTML = '';
+
+                    // Render the URLs on the page
+                    var div = document.createElement('div');
+                    div.className = "row mt-5";
+                    data.urls.forEach(function(url) {
+                        var subDiv = document.createElement("div");
+                        subDiv.className = "col-md-4";
+                        var imgTag = document.createElement('img');
+                        imgTag.src = url;
+                        imgTag.alt = "Result Image";
+                        imgTag.className = "uploaded-img";
+
+                        subDiv.appendChild(imgTag);
+                        div.appendChild(subDiv);
+                    });
+                    resultContainer.appendChild(div);
+                } else {
+                    console.log('No URLs found in the server response.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        document.getElementById('image-upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var input = document.getElementById('image-input');
+            var file = input.files[0];
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                var base64Data = reader.result.split(',')[1]; // Extract the base64 data from the result
+                // Display the uploaded image on the page
+                var imageContainer = document.getElementById('image-container');
+                imageContainer.innerHTML = '<img src="data:image/jpeg;base64,' + base64Data + '" alt="Uploaded Image" class="uploaded-img">';
+                // Show the process button
+                document.getElementById('button-box').style.display = 'block';
+
+            };
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // JavaScript code to handle button click and send image data to the server
+        document.getElementById('recommend-button').addEventListener('click', function() {
+            var imageElement = document.querySelector('.uploaded-img');
+            if (!imageElement) {
+                alert('Please upload an image first!');
+                return;
+            }
+            var base64Data = imageElement.src.split(',')[1];
+            // Send the base64Data to the backend using fetch or other methods
+            // For example:
+            fetch('/recommend_similar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ image_data: base64Data })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from the server
+                if (data && data.urls && data.urls.length > 0) {
+                    // Clear previous results (if any)
+                    var resultContainer = document.getElementById('result-container');
+                    resultContainer.innerHTML = '';
+
+                    // Render the URLs on the page
+                    var div = document.createElement('div');
+                    div.className = "row mt-5";
+                    data.urls.forEach(function(url) {
+                        var subDiv = document.createElement("div");
+                        subDiv.className = "col-md-4";
+                        var imgTag = document.createElement('img');
+                        imgTag.src = url;
+                        imgTag.alt = "Result Image";
+                        imgTag.className = "uploaded-img";
+
+                        subDiv.appendChild(imgTag);
+                        div.appendChild(subDiv);
+                    });
+                    resultContainer.appendChild(div);
+                } else {
+                    console.log('No URLs found in the server response.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+
+</html>
