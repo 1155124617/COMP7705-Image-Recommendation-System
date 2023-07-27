@@ -1,8 +1,9 @@
 import base64
 import json
 import os
-from io import BytesIO
+import shutil
 
+from io import BytesIO
 from PIL import Image
 from flask import Flask, render_template, request
 from flask_cors import CORS
@@ -63,37 +64,69 @@ def recommend_with_text():
 @app.route('/transfer_styles', methods=['POST'])
 def transfer_styles():
     data = request.json
-    time_stamp = data['time_stamp']
-    Image.open(BytesIO(base64.b64decode(data['content_image_data']))).resize((200, 200)).save(
-        os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
+    time_stamp = str(data['time_stamp'])
+
+    # Prepare input directory
+    if not os.path.exists(os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp)):
+        os.makedirs(os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp))
+    # Prepare output directory
+    if not os.path.exists(os.path.join(OUTPUT_IMAGE_DIR, time_stamp)):
+        os.makedirs(os.path.join(OUTPUT_IMAGE_DIR, time_stamp))
+
+    image_resize(Image.open(BytesIO(base64.b64decode(data['content_image_data'])))).save(
+        os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp, UPLOADED_IMAGE_NAME))
 
     # Clear output directory
     # rm_rf_directory(OUTPUT_IMAGE_DIR)
 
-    do_style_transfer()
+    do_style_transfer(
+        input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp),
+        input_style_image_dir=DEFAULT_STYLE_IMAGE_DIR,
+        output_image_dir=os.path.join(OUTPUT_IMAGE_DIR, time_stamp)
+    )
+
     image_show_list = []
-    output_image_names = os.listdir(OUTPUT_IMAGE_DIR)
+    output_image_names = os.listdir(os.path.join(OUTPUT_IMAGE_DIR, time_stamp))
     for output_image_name in output_image_names:
-        image_show_list.append(base64_encode(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, output_image_name))))
+        image_show_list.append(base64_encode(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, time_stamp, output_image_name))))
 
     return json.dumps({'urls': image_show_list})
 
 
-@app.route('/transfer_given_style')
+@app.route('/transfer_given_style', methods=['POST'])
 def transfer_given_style():
     # Clear output directory
-    rm_rf_directory(OUTPUT_IMAGE_DIR)
+    # rm_rf_directory(OUTPUT_IMAGE_DIR)
+    data = request.json
+    time_stamp = str(data['time_stamp'])
 
-    do_style_transfer(INPUT_STYLE_IMAGE_DIR)
+    # Prepare input directory
+    if not os.path.exists(os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp)):
+        os.makedirs(os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp))
+    if not os.path.exists(os.path.join(INPUT_STYLE_IMAGE_DIR, time_stamp)):
+        os.makedirs(os.path.join(INPUT_STYLE_IMAGE_DIR, time_stamp))
+    # Prepare output directory
+    if not os.path.exists(os.path.join(OUTPUT_IMAGE_DIR, time_stamp)):
+        os.makedirs(os.path.join(OUTPUT_IMAGE_DIR, time_stamp))
+
+    image_resize(Image.open(BytesIO(base64.b64decode(data['content_image_data'])))).save(
+        os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp, UPLOADED_IMAGE_NAME))
+    image_resize(Image.open(BytesIO(base64.b64decode(data['style_image_data'])))).save(
+        os.path.join(INPUT_STYLE_IMAGE_DIR, time_stamp, INPUT_STYLE_IMAGE_NAME))
+
+    do_style_transfer(
+        input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp),
+        input_style_image_dir=os.path.join(INPUT_STYLE_IMAGE_DIR, time_stamp),
+        output_image_dir=os.path.join(OUTPUT_IMAGE_DIR, time_stamp)
+    )
+
     image_show_list = []
-    output_image_names = os.listdir(OUTPUT_IMAGE_DIR)
+    output_image_names = os.listdir(os.path.join(OUTPUT_IMAGE_DIR, time_stamp))
     for output_image_name in output_image_names:
-        image_show_list.append(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, output_image_name)))
+        image_show_list.append(
+            base64_encode(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, time_stamp, output_image_name))))
 
-    content_image_stream = open_image_bytesio(os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
-    style_image_stream = open_image_bytesio(os.path.join(INPUT_STYLE_IMAGE_DIR, INPUT_STYLE_IMAGE_NAME))
-    return render_template(STYLE_TRANSFER_PAGE, content_image=content_image_stream,
-                           style_image=style_image_stream, images_output_list=image_show_list)
+    return json.dumps({'urls': image_show_list})
 
 
 @app.route('/mobile_recommend', methods=['POST'])
@@ -123,17 +156,29 @@ def mobile_transfer_styles():
     img_file = request.files['image']
     img = Image.open(img_file)
 
-    image_path = os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME)
-    img.resize((200, 200)).save(image_path)
+    # Prepare input directory
+    if not os.path.exists(os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE')):
+        os.makedirs(os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE'))
+    # Prepare output directory
+    if not os.path.exists(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE')):
+        os.makedirs(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE'))
+
+    image_path = os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE', UPLOADED_IMAGE_NAME)
+    image_resize(img).save(image_path)
 
     # Clear output directory
-    rm_rf_directory(OUTPUT_IMAGE_DIR)
+    # rm_rf_directory(OUTPUT_IMAGE_DIR)
 
-    do_style_transfer()
+    do_style_transfer(
+        input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE'),
+        input_style_image_dir=DEFAULT_STYLE_IMAGE_DIR,
+        output_image_dir=os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE')
+    )
+
     image_show_list = []
-    output_image_names = os.listdir(OUTPUT_IMAGE_DIR)
+    output_image_names = os.listdir(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE'))
     for output_image_name in output_image_names:
-        image_show_list.append(base64.encodebytes(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, output_image_name))
+        image_show_list.append(base64.encodebytes(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE', output_image_name))
                                                   .getvalue()).decode('utf-8'))
     return image_show_list
 
@@ -146,17 +191,31 @@ def mobile_transfer_given_style():
     content_image = Image.open(request.files['content_image'])
     style_image = Image.open(request.files['style_image'])
 
-    content_image.resize((200, 200)).save(os.path.join(INPUT_CONTENT_IMAGE_DIR, UPLOADED_IMAGE_NAME))
-    style_image.resize((200, 200)).save(os.path.join(INPUT_STYLE_IMAGE_DIR, INPUT_STYLE_IMAGE_NAME))
+    # Prepare input directory
+    if not os.path.exists(os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE')):
+        os.makedirs(os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE'))
+    if not os.path.exists(os.path.join(INPUT_STYLE_IMAGE_DIR, 'MOBILE')):
+        os.makedirs(os.path.join(INPUT_STYLE_IMAGE_DIR, 'MOBILE'))
+    # Prepare output directory
+    if not os.path.exists(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE')):
+        os.makedirs(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE'))
+
+    image_resize(content_image).save(os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE', UPLOADED_IMAGE_NAME))
+    image_resize(style_image).save(os.path.join(INPUT_STYLE_IMAGE_DIR, 'MOBILE', INPUT_STYLE_IMAGE_NAME))
 
     # Clear output directory
-    rm_rf_directory(OUTPUT_IMAGE_DIR)
+    # rm_rf_directory(OUTPUT_IMAGE_DIR)
 
-    do_style_transfer()
+    do_style_transfer(
+        input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE', UPLOADED_IMAGE_NAME),
+        input_style_image_dir=os.path.join(INPUT_STYLE_IMAGE_DIR, 'MOBILE', INPUT_STYLE_IMAGE_NAME),
+        output_image_dir=os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE')
+    )
+
     image_show_list = []
-    output_image_names = os.listdir(OUTPUT_IMAGE_DIR)
+    output_image_names = os.listdir(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE'))
     for output_image_name in output_image_names:
-        image_show_list.append(base64.encodebytes(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, output_image_name))
+        image_show_list.append(base64.encodebytes(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE', output_image_name))
                                                   .getvalue()).decode('utf-8'))
     return image_show_list
 
@@ -179,7 +238,12 @@ def open_image_bytesio(image_path):
 def rm_rf_directory(directory_path):
     dirs = os.listdir(directory_path)
     for directory in dirs:
-        os.remove(os.path.join(directory_path, directory))
+        shutil.rmtree(os.path.join(directory_path, directory))
+
+
+def image_resize(im, base=200, resampling_method=Image.Resampling.LANCZOS):
+    im.thumbnail((base, base), resampling_method)
+    return im
 
 
 if __name__ == '__main__':

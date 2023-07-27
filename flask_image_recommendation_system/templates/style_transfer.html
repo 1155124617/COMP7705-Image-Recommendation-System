@@ -130,6 +130,57 @@
                 console.error('Error:', error);
             });
         });
+
+        document.getElementById('specific-transfer-button').addEventListener('click', function() {
+            var contentImageElement = document.getElementById("content-image");
+            var styleImageElement = document.getElementById("style-image");
+            if (!contentImageElement || !styleImageElement) {
+                alert('Please upload both content image and style image!');
+                return;
+            }
+            var contentImageBase64Data = contentImageElement.src.split(',')[1];
+            var styleImageBase64Data = styleImageElement.src.split(',')[1];
+            var timestamp = Date.parse(new Date());
+            // Send the base64Data to the backend using fetch or other methods
+            // For example:
+            fetch('/transfer_given_style', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content_image_data: contentImageBase64Data, style_image_data: styleImageBase64Data, time_stamp: timestamp })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from the server
+                if (data && data.urls && data.urls.length > 0) {
+                    // Clear previous results (if any)
+                    var resultContainer = document.getElementById('result-container');
+                    resultContainer.innerHTML = '';
+
+                    // Render the URLs on the page
+                    var div = document.createElement('div');
+                    div.className = "row mt-5";
+                    data.urls.forEach(function(url) {
+                        var subDiv = document.createElement("div");
+                        subDiv.className = "col-md-4";
+                        var imgTag = document.createElement('img');
+                        imgTag.src = 'data:image/jpeg;base64,' + url;
+                        imgTag.alt = "Result Image";
+                        imgTag.className = "uploaded-img";
+
+                        subDiv.appendChild(imgTag);
+                        div.appendChild(subDiv);
+                    });
+                    resultContainer.appendChild(div);
+                } else {
+                    console.log('No URLs found in the server response.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
     </script>
 </body>
 
