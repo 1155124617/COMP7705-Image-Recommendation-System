@@ -2,6 +2,7 @@ import base64
 import json
 import os
 import shutil
+from datetime import datetime
 from io import BytesIO
 
 from PIL import Image
@@ -157,29 +158,31 @@ def mobile_transfer_styles():
     img_file = request.files['image']
     img = Image.open(img_file)
 
-    # Prepare input directory
-    if not os.path.exists(os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE')):
-        os.makedirs(os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE'))
-    # Prepare output directory
-    if not os.path.exists(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE')):
-        os.makedirs(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE'))
+    time_stamp = str(round(datetime.now().timestamp()))
 
-    image_path = os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE', UPLOADED_IMAGE_NAME)
+    # Prepare input directory
+    if not os.path.exists(os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp)):
+        os.makedirs(os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp))
+    # Prepare output directory
+    if not os.path.exists(os.path.join(OUTPUT_IMAGE_DIR, time_stamp)):
+        os.makedirs(os.path.join(OUTPUT_IMAGE_DIR, time_stamp))
+
+    image_path = os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp, UPLOADED_IMAGE_NAME)
     image_resize(img).save(image_path)
 
     # Clear output directory
     # rm_rf_directory(OUTPUT_IMAGE_DIR)
 
     do_style_transfer(
-        input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE'),
+        input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp),
         input_style_image_dir=DEFAULT_STYLE_IMAGE_DIR,
-        output_image_dir=os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE')
+        output_image_dir=os.path.join(OUTPUT_IMAGE_DIR, time_stamp)
     )
 
     image_show_list = []
-    output_image_names = os.listdir(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE'))
+    output_image_names = os.listdir(os.path.join(OUTPUT_IMAGE_DIR, time_stamp))
     for output_image_name in output_image_names:
-        image_show_list.append(base64.encodebytes(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE', output_image_name))
+        image_show_list.append(base64.encodebytes(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, time_stamp, output_image_name))
                                                   .getvalue()).decode('utf-8'))
     return image_show_list
 
@@ -192,31 +195,33 @@ def mobile_transfer_given_style():
     content_image = Image.open(request.files['content_image'])
     style_image = Image.open(request.files['style_image'])
 
-    # Prepare input directory
-    if not os.path.exists(os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE')):
-        os.makedirs(os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE'))
-    if not os.path.exists(os.path.join(INPUT_STYLE_IMAGE_DIR, 'MOBILE')):
-        os.makedirs(os.path.join(INPUT_STYLE_IMAGE_DIR, 'MOBILE'))
-    # Prepare output directory
-    if not os.path.exists(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE')):
-        os.makedirs(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE'))
+    time_stamp = str(round(datetime.now().timestamp()))
 
-    image_resize(content_image).save(os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE', UPLOADED_IMAGE_NAME))
-    image_resize(style_image).save(os.path.join(INPUT_STYLE_IMAGE_DIR, 'MOBILE', INPUT_STYLE_IMAGE_NAME))
+    # Prepare input directory
+    if not os.path.exists(os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp)):
+        os.makedirs(os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp))
+    if not os.path.exists(os.path.join(INPUT_STYLE_IMAGE_DIR, time_stamp)):
+        os.makedirs(os.path.join(INPUT_STYLE_IMAGE_DIR, time_stamp))
+    # Prepare output directory
+    if not os.path.exists(os.path.join(OUTPUT_IMAGE_DIR, time_stamp)):
+        os.makedirs(os.path.join(OUTPUT_IMAGE_DIR, time_stamp))
+
+    image_resize(content_image).save(os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp, UPLOADED_IMAGE_NAME))
+    image_resize(style_image).save(os.path.join(INPUT_STYLE_IMAGE_DIR, time_stamp, INPUT_STYLE_IMAGE_NAME))
 
     # Clear output directory
     # rm_rf_directory(OUTPUT_IMAGE_DIR)
 
     do_style_transfer(
-        input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, 'MOBILE', UPLOADED_IMAGE_NAME),
-        input_style_image_dir=os.path.join(INPUT_STYLE_IMAGE_DIR, 'MOBILE', INPUT_STYLE_IMAGE_NAME),
-        output_image_dir=os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE')
+        input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp, UPLOADED_IMAGE_NAME),
+        input_style_image_dir=os.path.join(INPUT_STYLE_IMAGE_DIR, time_stamp, INPUT_STYLE_IMAGE_NAME),
+        output_image_dir=os.path.join(OUTPUT_IMAGE_DIR, time_stamp)
     )
 
     image_show_list = []
-    output_image_names = os.listdir(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE'))
+    output_image_names = os.listdir(os.path.join(OUTPUT_IMAGE_DIR, time_stamp))
     for output_image_name in output_image_names:
-        image_show_list.append(base64.encodebytes(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, 'MOBILE', output_image_name))
+        image_show_list.append(base64.encodebytes(open_image_bytesio(os.path.join(OUTPUT_IMAGE_DIR, time_stamp, output_image_name))
                                                   .getvalue()).decode('utf-8'))
     return image_show_list
 
