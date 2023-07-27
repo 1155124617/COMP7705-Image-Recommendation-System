@@ -7,6 +7,7 @@ from io import BytesIO
 from PIL import Image
 from flask import Flask, render_template, request
 from flask_cors import CORS
+from word_association.search_prompt_autocomplete import text_association_service
 
 from const.pathname import *
 from style_transfer.S2WAT.style_transfer_model import do_style_transfer
@@ -53,9 +54,10 @@ def recommend_similar():
 @app.route('/recommend_with_text', methods=['POST'])
 def recommend_with_text():
     data = request.json
-    text = data["text"]
+    text = text_association_service(data["text"])
 
     if text is not None:
+        print(text)
         image_show_list = recommend_text_to_urls(text)
 
         return json.dumps({'urls': image_show_list})
