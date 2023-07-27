@@ -2,18 +2,17 @@ import base64
 import json
 import os
 import shutil
-
 from io import BytesIO
+
 from PIL import Image
 from flask import Flask, render_template, request
 from flask_cors import CORS
-from word_association.search_prompt_autocomplete import text_association_service
 
 from const.pathname import *
+from rec_models.blip2 import recommend_images_to_urls, recommend_text_to_urls, get_random_image_urls
 from style_transfer.S2WAT.style_transfer_model import do_style_transfer
-# from rec_models.blip2 import recommend_images_to_files_list, recommend_images_to_urls, recommend_text_to_files_list, recommend_text_to_urls, get_random_image_urls
-from test.test import recommend_images_to_urls, recommend_images_to_files_list, recommend_text_to_files_list, \
-    recommend_text_to_urls, get_random_image_urls
+# from test.test import recommend_images_to_urls, recommend_text_to_urls, get_random_image_urls
+from word_association.search_prompt_autocomplete import text_association_service
 
 app = Flask(__name__)
 request_id = 0
