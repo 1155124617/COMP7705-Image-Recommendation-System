@@ -16,7 +16,7 @@ parser.add_argument('--input_dir', type=str, default='./input',
                     'which are loaded in "Content"/"Style" subfolders respectively.')
 parser.add_argument('--output_dir', type=str, default='./output',
                     help='Directory to save the output image(s)')
-parser.add_argument('--checkpoint_import_path', type=str, default='./pre_trained_models/checkpoint/checkpoint_40000_epoch.pkl',
+parser.add_argument('--checkpoint_import_path', type=str, default='./pre_trained_models/checkpoint/checkpoint_65600_epoch.pkl',
                     help='Directory path to the importing checkpoint')
 
 args = parser.parse_args()

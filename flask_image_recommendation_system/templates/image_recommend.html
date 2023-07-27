@@ -19,7 +19,7 @@
             <div>
                 <form id="text-upload-form" method="POST">
                     <input type="text" name="search_text" id="text-input">
-                    <button type="submit" class="btn btn-primary" id="text-upload-button">Search</button>
+                    <button id="text-upload-button" class="btn btn-primary" id="text-upload-button">Search</button>
                 </form>
             </div>
             <br>
@@ -46,8 +46,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     <!-- JavaScript code to handle image upload and button visibility -->
     <script>
-        document.getElementById('text-upload-form').addEventListener('submit', function(event) {
-            event.preventDefault();
+        document.getElementById('text-upload-button').addEventListener('click', function() {
             var text = document.getElementById('text-input').value;
             if (!text) {
                 alert('Please input the search key words');
