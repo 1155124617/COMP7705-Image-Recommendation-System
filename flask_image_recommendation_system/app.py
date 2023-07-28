@@ -131,6 +131,11 @@ def transfer_given_style():
     return json.dumps({'urls': image_show_list})
 
 
+@app.route('/mobile_random_image', methods=['POST'])
+def mobile_random_image():
+    return get_random_image_urls()
+
+
 @app.route('/mobile_recommend', methods=['POST'])
 def mobile_recommend():
     if 'image' not in request.files:
