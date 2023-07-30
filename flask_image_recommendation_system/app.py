@@ -13,7 +13,9 @@ from const.pathname import *
 from rec_models.blip2 import recommend_images_to_urls, recommend_text_to_urls, get_random_image_urls
 from style_transfer.S2WAT.style_transfer_model import do_style_transfer
 # from test.test import recommend_images_to_urls, recommend_text_to_urls, get_random_image_urls
-from word_association.search_prompt_autocomplete import text_association_service
+from word_association.chatgpt_based import associate_chatgpt
+from word_association.search_prompt_autocomplete import associate_landscape
+
 
 app = Flask(__name__)
 request_id = 0
@@ -54,7 +56,10 @@ def recommend_similar():
 @app.route('/recommend_with_text', methods=['POST'])
 def recommend_with_text():
     data = request.json
-    text = text_association_service(data["text"])
+    try:
+        text = text_association_service(data["text"], data['text_association_type'])
+    except Exception as e:
+        text = data["text"]
 
     if text is not None:
         print(text)
@@ -268,6 +273,19 @@ def rm_rf_directory(directory_path):
 def image_resize(im, base=200, resampling_method=Image.Resampling.LANCZOS):
     im.thumbnail((base, base), resampling_method)
     return im
+
+
+def text_association_service(text, text_association_type):
+    try:
+        if text_association_type == "landscape":
+            return associate_landscape(text)
+        elif text_association_type == "chatgpt":
+            return associate_chatgpt(text)
+        else:
+            return text
+
+    except:
+        return text
 
 
 if __name__ == '__main__':

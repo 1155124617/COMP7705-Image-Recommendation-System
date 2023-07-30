@@ -12,7 +12,7 @@ def query(payload):
     return response.json()
 
 
-def text_association_service(original_text):
+def associate_landscape(original_text):
     output = query({
         "inputs": "picture photo type kind surrounding landscape" + original_text,
     })

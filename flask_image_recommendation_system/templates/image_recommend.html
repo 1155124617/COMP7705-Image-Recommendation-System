@@ -20,6 +20,12 @@
                 <form id="text-upload-form" method="POST" enctype="multipart/form-data">
                     <input type="text" name="search_text" id="text-input">
                 </form>
+                <label for="text_association">Text Association</label>
+                <select id="text_association">
+                    <option value="default">No Association [Default]</option>
+                    <option value="landscape">Associate With Landscape</option>
+                    <option value="chatgpt">Smart Association [ChatGPT]</option>
+                </select>
                 <button class="btn btn-primary" id="text-upload-button">Search</button>
             </div>
             <br>
@@ -47,6 +53,7 @@
     <!-- JavaScript code to handle image upload and button visibility -->
     <script>
         document.getElementById('text-upload-button').addEventListener('click', function() {
+            var text_association_type = document.getElementById('text_association').value;
             var text = document.getElementById('text-input').value;
             if (!text) {
                 alert('Please input the search key words');
@@ -58,7 +65,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ text: text })
+                body: JSON.stringify({ text: text, text_association_type: text_association_type })
             })
             .then(response => response.json())
             .then(data => {
