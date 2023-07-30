@@ -66,6 +66,9 @@ def recommend_with_text():
 @app.route('/transfer_styles', methods=['POST'])
 def transfer_styles():
     data = request.json
+    model_type = data['model_type']
+    print(f"Model is {model_type}")
+
     time_stamp = str(data['time_stamp'])
 
     # Prepare input directory
@@ -82,6 +85,7 @@ def transfer_styles():
     # rm_rf_directory(OUTPUT_IMAGE_DIR)
 
     do_style_transfer(
+        model_type=model_type,
         input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp),
         input_style_image_dir=DEFAULT_STYLE_IMAGE_DIR,
         output_image_dir=os.path.join(OUTPUT_IMAGE_DIR, time_stamp)
@@ -100,6 +104,10 @@ def transfer_given_style():
     # Clear output directory
     # rm_rf_directory(OUTPUT_IMAGE_DIR)
     data = request.json
+
+    model_type = data['model_type']
+    print(f"Model is {model_type}")
+
     time_stamp = str(data['time_stamp'])
 
     # Prepare input directory
@@ -117,6 +125,7 @@ def transfer_given_style():
         os.path.join(INPUT_STYLE_IMAGE_DIR, time_stamp, INPUT_STYLE_IMAGE_NAME))
 
     do_style_transfer(
+        model_type=model_type,
         input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp),
         input_style_image_dir=os.path.join(INPUT_STYLE_IMAGE_DIR, time_stamp),
         output_image_dir=os.path.join(OUTPUT_IMAGE_DIR, time_stamp)
@@ -161,6 +170,7 @@ def mobile_transfer_styles():
         return "No image file in the request", 400
 
     img_file = request.files['image']
+    model_type = request.form['model_type']
     img = Image.open(img_file)
 
     time_stamp = str(round(datetime.now().timestamp()))
@@ -179,6 +189,7 @@ def mobile_transfer_styles():
     # rm_rf_directory(OUTPUT_IMAGE_DIR)
 
     do_style_transfer(
+        model_type=model_type,
         input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp),
         input_style_image_dir=DEFAULT_STYLE_IMAGE_DIR,
         output_image_dir=os.path.join(OUTPUT_IMAGE_DIR, time_stamp)
@@ -199,6 +210,7 @@ def mobile_transfer_given_style():
 
     content_image = Image.open(request.files['content_image'])
     style_image = Image.open(request.files['style_image'])
+    model_type = request.form['model_type']
 
     time_stamp = str(round(datetime.now().timestamp()))
 
@@ -218,6 +230,7 @@ def mobile_transfer_given_style():
     # rm_rf_directory(OUTPUT_IMAGE_DIR)
 
     do_style_transfer(
+        model_type=model_type,
         input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp, UPLOADED_IMAGE_NAME),
         input_style_image_dir=os.path.join(INPUT_STYLE_IMAGE_DIR, time_stamp, INPUT_STYLE_IMAGE_NAME),
         output_image_dir=os.path.join(OUTPUT_IMAGE_DIR, time_stamp)

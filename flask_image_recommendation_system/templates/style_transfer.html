@@ -15,6 +15,12 @@
         <div class="container button-container">
             <h1 class="text-center mt-5">Welcome to the Image Recommendation System!</h1>
             <br/>
+            <label for="model_selector">Model</label>
+            <select id="model_selector">
+                <option value="universal">Model 1 Universal</option>
+                <option value="car">Model 2 Good for Car</option>
+            </select>
+            </br>
             <form id="content-image-upload-form" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <input type="file" name="content_image" id="content-image-input" accept="image/*" required>
@@ -83,6 +89,7 @@
         });
 
         document.getElementById('default-transfer-button').addEventListener('click', function() {
+            var model_type = document.getElementById("model_selector").value;
             var contentImageElement = document.getElementById("content-image");
             if (!contentImageElement) {
                 alert('Please upload a content image first!');
@@ -97,7 +104,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ content_image_data: base64Data, time_stamp: timestamp })
+                body: JSON.stringify({ content_image_data: base64Data, time_stamp: timestamp, model_type: model_type})
             })
             .then(response => response.json())
             .then(data => {
@@ -132,6 +139,7 @@
         });
 
         document.getElementById('specific-transfer-button').addEventListener('click', function() {
+            var model_type = document.getElementById("model_selector").value;
             var contentImageElement = document.getElementById("content-image");
             var styleImageElement = document.getElementById("style-image");
             if (!contentImageElement || !styleImageElement) {
@@ -148,7 +156,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ content_image_data: contentImageBase64Data, style_image_data: styleImageBase64Data, time_stamp: timestamp })
+                body: JSON.stringify({ content_image_data: contentImageBase64Data, style_image_data: styleImageBase64Data, time_stamp: timestamp, model_type: model_type })
             })
             .then(response => response.json())
             .then(data => {

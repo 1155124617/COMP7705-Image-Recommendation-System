@@ -45,7 +45,7 @@ parser.add_argument('--loss_count_interval', type=int, default=400)
 parser.add_argument('--resume_train', type=bool, default=False, help='Use checkpoints to train or not ')
 parser.add_argument('--checkpoint_save_path', type=str, default='./pre_trained_models/checkpoint',
                     help='Directory path to save a checkpoint')
-parser.add_argument('--checkpoint_import_path', type=str, default='./pre_trained_model/checkpoint/checkpoint_65600_epoch.pkl',
+parser.add_argument('--checkpoint_import_path', type=str, default='./pre_trained_model/checkpoint/model_2.pkl',
                     help='Directory path to the importing checkpoint')
 
 args = parser.parse_args()

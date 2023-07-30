@@ -15,5 +15,8 @@ INPUT_STYLE_IMAGE_DIR = "style_transfer/S2WAT/input/UserStyle"
 INPUT_STYLE_IMAGE_NAME = "style.jpeg"
 INPUT_IMAGE_DIR = "style_transfer/S2WAT/input"
 OUTPUT_IMAGE_DIR = "style_transfer/S2WAT/output"
-MODEL_LOADING_PATH = "style_transfer/S2WAT/pre_trained_models/checkpoint/checkpoint_65600_epoch.pkl"
+
+MODEL_1_LOADING_PATH = "style_transfer/S2WAT/pre_trained_models/checkpoint/universal.pkl"
+MODEL_2_LOADING_PATH = "style_transfer/S2WAT/pre_trained_models/checkpoint/car.pkl"
+
 IGNORE_FILE_LIST = ['.DS_Store']
