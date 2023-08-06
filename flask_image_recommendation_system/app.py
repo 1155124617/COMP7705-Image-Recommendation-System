@@ -236,8 +236,8 @@ def mobile_transfer_given_style():
 
     do_style_transfer(
         model_type=model_type,
-        input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp, UPLOADED_IMAGE_NAME),
-        input_style_image_dir=os.path.join(INPUT_STYLE_IMAGE_DIR, time_stamp, INPUT_STYLE_IMAGE_NAME),
+        input_content_image_dir=os.path.join(INPUT_CONTENT_IMAGE_DIR, time_stamp),
+        input_style_image_dir=os.path.join(INPUT_STYLE_IMAGE_DIR, time_stamp),
         output_image_dir=os.path.join(OUTPUT_IMAGE_DIR, time_stamp)
     )
 
